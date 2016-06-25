@@ -14,6 +14,7 @@
 #include "buffer.h"
 #include "vector.h"
 #include "proxy.h"
+#include "global.h"
 
 typedef struct {
 	git_stream parent;
@@ -284,6 +285,7 @@ int git_curl_stream_new(git_stream **out, const char *host, const char *port)
 	curl_stream *st;
 	CURL *handle;
 	int iport = 0, error;
+	const char *user_agent;
 
 	st = git__calloc(1, sizeof(curl_stream));
 	GITERR_CHECK_ALLOC(st);
@@ -308,6 +310,10 @@ int git_curl_stream_new(git_stream **out, const char *host, const char *port)
 	curl_easy_setopt(handle, CURLOPT_CERTINFO, 1);
 	curl_easy_setopt(handle, CURLOPT_HTTPPROXYTUNNEL, 1);
 	curl_easy_setopt(handle, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
+
+	user_agent = git_libgit2__user_agent();
+	if(user_agent)
+		curl_easy_setopt(handle, CURLOPT_USERAGENT, user_agent);
 
 	/* curl_easy_setopt(handle, CURLOPT_VERBOSE, 1); */
 
